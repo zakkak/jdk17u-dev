@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -120,9 +120,10 @@ public class MetaUtil {
      *            {@code "int[][]"} ).
      */
     public static String internalNameToJava(String name, boolean qualified, boolean classForNameCompatible) {
+        String result = name.replace('.', '/');
         switch (name.charAt(0)) {
             case 'L': {
-                String result = replacePackageSeparatorsWithDot(name.substring(1, name.length() - 1));
+                result = replacePackageSeparatorsWithDot(result.substring(1, name.length() - 1));
                 if (!qualified) {
                     final int lastDot = result.lastIndexOf('.');
                     if (lastDot != -1) {
@@ -132,7 +133,7 @@ public class MetaUtil {
                 return result;
             }
             case '[':
-                return classForNameCompatible ? replacePackageSeparatorsWithDot(name) : internalNameToJava(name.substring(1), qualified, classForNameCompatible) + "[]";
+                return classForNameCompatible ? replacePackageSeparatorsWithDot(result) : internalNameToJava(result.substring(1), qualified, classForNameCompatible) + "[]";
             default:
                 if (name.length() != 1) {
                     throw new IllegalArgumentException("Illegal internal name: " + name);
@@ -252,7 +253,7 @@ public class MetaUtil {
                 result.append("V");
                 break;
             default:
-                result.append("L").append(base.replace('.', '/')).append(";");
+                result.append("L").append(base.replace('/', '+').replace('.', '/').replace('+', '.')).append(";");
                 break;
         }
         return result.toString();
